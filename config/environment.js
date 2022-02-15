@@ -29,6 +29,20 @@ module.exports = function(environment) {
     // ENV.APP.LOG_TRANSITIONS = true;
     // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
     // ENV.APP.LOG_VIEW_LOOKUPS = true;
+    ENV.stripe = {
+      publishableKey: 'pk_thisIsATestKey',
+      stripeOptions: {
+        stripeAccount: 'acct_test_account',
+        locale: 'en',
+      },
+    };
+
+    ENV['@sentry/ember'] = {
+      ignoreEmberOnErrorWarning: false,
+      sentry: {
+        dsn: 'https://public@sentry.example.com/1' // replace __DSN__ with your DSN,
+      }
+    };
   }
 
   if (environment === 'test') {
