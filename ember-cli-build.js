@@ -1,24 +1,59 @@
 'use strict';
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
+const nodeSass = require('node-sass');
 
-module.exports = function(defaults) {
-  let app = new EmberApp(defaults, {
-    // Add options here
+const environment = process.env.EMBER_ENV;
+const pluginsToBlacklist = environment === 'production' ? ['ember-freestyle'] : [];
+
+module.exports = function (defaults) {
+  const app = new EmberApp(defaults, {
+    addons: {
+      blacklist: pluginsToBlacklist,
+    },
+
+    // SCSS source maps require a magical incantation.
+    // You need both sassOptions.sourceMapEmbed = true, and
+    // autoprefixer.sourcemap = true
+    // see https://github.com/kimroen/ember-cli-autoprefixer/issues/18#issuecomment-281564593
+    sassOptions: {
+      implementation: nodeSass,
+      sourceMapEmbed: true,
+    },
+
+    autoprefixer: {
+      sourcemap: true,
+    },
+
+    autoImport: {
+      webpack: {
+        // fs, path, and urix are from importing @testing-library/jest-dom:
+        node: {
+          fs: 'empty',
+          path: 'empty',
+          urix: 'empty',
+        },
+      },
+    },
+
+    fingerprint: {
+      exclude: [
+        'images/ccicons',
+        'images/brands',
+        'images/icons/mobile-nav',
+        'images/patient-todos', // cannot be fingerprinted because the paths are provided dynamically via the API
+        'images/support_avatars',
+        'fonts',
+      ],
+
+      extensions: ['js', 'css', 'png', 'jpg', 'gif', 'svg'],
+      // replaceExtensions:['html', 'css', 'js']
+    },
+
+    'ember-cli-string-helpers': {
+      only: ['html-safe'],
+    },
   });
-
-  // Use `app.import` to add additional libraries to the generated
-  // output files.
-  //
-  // If you need to use different assets in different
-  // environments, specify an object as the first parameter. That
-  // object's keys should be the environment name and the values
-  // should be the asset to use in that environment.
-  //
-  // If the library that you are including contains AMD or ES6
-  // modules that you would like to import into your application
-  // please specify an object with the list of modules as keys
-  // along with the exports of each module as its value.
 
   return app.toTree();
 };
